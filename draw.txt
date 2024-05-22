@@ -1,0 +1,68 @@
+package com.example.fitnessappforyou;
+
+import android.app.Activity;
+import android.os.Bundle;
+
+public class Draw extends Activity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(new CustomView(this));
+    }
+
+}
+
+
+
+CustomView.java: (create new class) 
+
+
+package com.example.fitnessappforyou;
+
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.view.View;
+
+public class CustomView extends View {
+
+    private Paint paint;
+    private Paint linePaint;
+    private Paint rectPaint;
+
+    public CustomView(Context context) {
+        super(context);
+        // Initialize paint objects
+        paint = new Paint();
+        paint.setColor(Color.GRAY);
+        
+        linePaint = new Paint();
+        linePaint.setColor(Color.RED);
+        linePaint.setStrokeWidth(5);
+        
+        rectPaint = new Paint();
+        rectPaint.setColor(Color.GREEN);
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        
+        // Draw background color
+        canvas.drawColor(Color.BLUE);
+        
+        // Draw a circle
+        canvas.drawCircle(200, 200, 100, paint);
+        
+        // Draw a rectangle
+        canvas.drawRect(100, 400, 300, 600, rectPaint);
+        
+        // Draw a line
+        canvas.drawLine(100, 700, 300, 900, linePaint);
+        
+        // Draw another line
+        canvas.drawLine(300, 700, 100, 900, linePaint);
+    }
+}

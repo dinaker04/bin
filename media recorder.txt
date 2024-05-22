@@ -1,0 +1,219 @@
+package com.example.music;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
+import android.media.MediaRecorder;
+import android.os.Bundle;
+import android.os.Environment;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
+
+import java.io.IOException;
+
+public class MainActivity extends AppCompatActivity {
+
+    private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
+    private MediaRecorder mediaRecorder;
+    private MediaPlayer mediaPlayer;
+    private String fileName = null;
+
+    private Button startRecordingButton;
+    private Button stopRecordingButton;
+    private Button playRecordingButton;
+    private Button pauseRecordingButton;
+    private Button stopPlayingButton;
+
+    private boolean permissionToRecordAccepted = false;
+    private String [] permissions = {Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        startRecordingButton = findViewById(R.id.startRecordingButton);
+        stopRecordingButton = findViewById(R.id.stopRecordingButton);
+        playRecordingButton = findViewById(R.id.playRecordingButton);
+        pauseRecordingButton = findViewById(R.id.pauseRecordingButton);
+        stopPlayingButton = findViewById(R.id.stopPlayingButton);
+
+        ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
+
+        stopRecordingButton.setEnabled(false);
+        playRecordingButton.setEnabled(false);
+        pauseRecordingButton.setEnabled(false);
+        stopPlayingButton.setEnabled(false);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        permissionToRecordAccepted = requestCode == REQUEST_RECORD_AUDIO_PERMISSION &&
+                grantResults.length > 0 &&
+                grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+                grantResults[1] == PackageManager.PERMISSION_GRANTED;
+
+        if (!permissionToRecordAccepted) {
+            Toast.makeText(this, "Permissions denied", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+    }
+
+    public void startRecording(View view) {
+        if (!permissionToRecordAccepted) {
+            ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
+            return;
+        }
+
+        fileName = getExternalFilesDir(Environment.DIRECTORY_MUSIC).getAbsolutePath() + "/audiorecordtest.3gp";
+
+        mediaRecorder = new MediaRecorder();
+        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        mediaRecorder.setOutputFile(fileName);
+
+        try {
+            mediaRecorder.prepare();
+            mediaRecorder.start();
+            startRecordingButton.setEnabled(false);
+            stopRecordingButton.setEnabled(true);
+            playRecordingButton.setEnabled(false);
+            pauseRecordingButton.setEnabled(false);
+            stopPlayingButton.setEnabled(false);
+            Toast.makeText(this, "Recording started", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void stopRecording(View view) {
+        if (mediaRecorder != null) {
+            mediaRecorder.stop();
+            mediaRecorder.release();
+            mediaRecorder = null;
+            startRecordingButton.setEnabled(true);
+            stopRecordingButton.setEnabled(false);
+            playRecordingButton.setEnabled(true);
+            pauseRecordingButton.setEnabled(false);
+            stopPlayingButton.setEnabled(false);
+            Toast.makeText(this, "Recording stopped", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void playRecording(View view) {
+        mediaPlayer = new MediaPlayer();
+        try {
+            mediaPlayer.setDataSource(fileName);
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+            playRecordingButton.setEnabled(false);
+            pauseRecordingButton.setEnabled(true);
+            stopPlayingButton.setEnabled(true);
+            Toast.makeText(this, "Playback started", Toast.LENGTH_SHORT).show();
+            mediaPlayer.setOnCompletionListener(mp -> {
+                playRecordingButton.setEnabled(true);
+                pauseRecordingButton.setEnabled(false);
+                stopPlayingButton.setEnabled(false);
+                Toast.makeText(this, "Playback completed", Toast.LENGTH_SHORT).show();
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void pauseRecording(View view) {
+        if (mediaPlayer != null) {
+            mediaPlayer.pause();
+            playRecordingButton.setEnabled(true);
+            pauseRecordingButton.setEnabled(false);
+            stopPlayingButton.setEnabled(true);
+            Toast.makeText(this, "Playback paused", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void stopPlaying(View view) {
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer.release();
+            mediaPlayer = null;
+            playRecordingButton.setEnabled(true);
+            pauseRecordingButton.setEnabled(false);
+            stopPlayingButton.setEnabled(false);
+            Toast.makeText(this, "Playback stopped", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mediaRecorder != null) {
+            mediaRecorder.release();
+            mediaRecorder = null;
+        }
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+    }
+}
+XML:
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <Button
+        android:id="@+id/startRecordingButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start Recording"
+        android:onClick="startRecording" />
+
+    <Button
+        android:id="@+id/stopRecordingButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Stop Recording"
+        android:onClick="stopRecording"
+        android:enabled="false"/>
+
+    <Button
+        android:id="@+id/playRecordingButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Play Recording"
+        android:onClick="playRecording"
+        android:enabled="false"/>
+
+    <Button
+        android:id="@+id/pauseRecordingButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pause Recording"
+        android:onClick="pauseRecording"
+        android:enabled="false"/>
+
+    <Button
+        android:id="@+id/stopPlayingButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Stop Playing"
+        android:onClick="stopPlaying"
+        android:enabled="false"/>
+</LinearLayout>
+MANIFEST:
+<uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />

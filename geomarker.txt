@@ -1,0 +1,167 @@
+MainActivity.java:
+package com.example.osmdroidexample;
+
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
+
+import org.osmdroid.api.IMapController;
+import org.osmdroid.config.Configuration;
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Marker;
+
+public class MainActivity extends FragmentActivity {
+
+    private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 1;
+    private MapView map;
+    private EditText latitudeEditText;
+    private EditText longitudeEditText;
+    private Button addMarkerButton;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Configuration.getInstance().setUserAgentValue(getPackageName());
+        setContentView(R.layout.activity_main);
+
+        map = findViewById(R.id.map);
+        map.setTileSource(TileSourceFactory.MAPNIK);
+        map.setMultiTouchControls(true);
+
+        IMapController mapController = map.getController();
+        mapController.setZoom(15.0);
+        GeoPoint startPoint = new GeoPoint(0.0, 0.0); // Initial center point
+        mapController.setCenter(startPoint);
+
+        latitudeEditText = findViewById(R.id.latitudeEditText);
+        longitudeEditText = findViewById(R.id.longitudeEditText);
+        addMarkerButton = findViewById(R.id.addMarkerButton);
+
+        addMarkerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String latitudeStr = latitudeEditText.getText().toString();
+                String longitudeStr = longitudeEditText.getText().toString();
+
+                if (!latitudeStr.isEmpty() && !longitudeStr.isEmpty()) {
+                    double latitude = Double.parseDouble(latitudeStr);
+                    double longitude = Double.parseDouble(longitudeStr);
+                    addMarker(new GeoPoint(latitude, longitude), "Custom Marker");
+                } else {
+                    Toast.makeText(MainActivity.this, "Please enter valid latitude and longitude", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        requestPermissionsIfNecessary(new String[]{
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.ACCESS_FINE_LOCATION
+        });
+    }
+
+    private void addMarker(GeoPoint point, String title) {
+        Marker marker = new Marker(map);
+        marker.setPosition(point);
+        marker.setTitle(title);
+        map.getOverlays().add(marker);
+        map.invalidate();
+        map.getController().animateTo(point);
+    }
+
+    private void requestPermissionsIfNecessary(String[] permissions) {
+        for (String permission : permissions) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{permission}, REQUEST_PERMISSIONS_REQUEST_CODE);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case REQUEST_PERMISSIONS_REQUEST_CODE:
+                for (int i = 0; i < permissions.length; i++) {
+                    if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                        // Permission was not granted
+                    }
+                }
+                break;
+ }
+}
+}
+
+activity_main.xml:
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <org.osmdroid.views.MapView
+        android:id="@+id/map"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/inputLayout"/>
+
+    <LinearLayout
+        android:id="@+id/inputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:background="@android:color/darker_gray">
+
+        <EditText
+            android:id="@+id/latitudeEditText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Latitude"
+            android:inputType="numberDecimal"/>
+
+        <EditText
+            android:id="@+id/longitudeEditText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Longitude"
+            android:inputType="numberDecimal"/>
+
+        <Button
+            android:id="@+id/addMarkerButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add Marker"/>
+    </LinearLayout>
+
+
+
+</RelativeLayout>
+
+Manifest:
+
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+gradle:
+
+dependencies{
+  implementation 'org.osmdroid:osmdroid-android:6.1.10'
+}

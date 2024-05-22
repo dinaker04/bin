@@ -1,0 +1,204 @@
+MainActivity.java:
+
+package com.example.broadcast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+
+public class MainActivity extends AppCompatActivity {
+Button btn;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        btn=findViewById(R.id.button);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent(MainActivity.this,broadcast1.class);
+                startActivity(intent);
+            }
+        });
+    }
+}
+
+activity_main.xml:
+
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Broadcast"
+        tools:layout_editor_absoluteX="163dp"
+        tools:layout_editor_absoluteY="296dp"
+        tools:ignore="MissingConstraints" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+Manifest:
+<uses-permission android:name="android.permission.BROADCAST_CLOSE_SYSTEM_DIALOGS"
+        tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.BROADCAST_CLOSE_SYSTEM_DIALOGS"
+        tools:ignore="ProtectedPermissions" />
+
+
+DismissReceiver.java: (class)
+
+package com.example.broadcast;
+import android.content.Context;
+import android.content.Intent;
+import android.widget.Toast;
+import androidx.core.app.NotificationManagerCompat;
+
+public class DismissReceiver {
+
+    public void onReceive(Context context, Intent intent) {
+        if ("DISMISS_ACTION".equals(intent.getAction())) {
+            int notificationId = intent.getIntExtra("notificationId", 0);
+
+            // Dismiss the notification
+            NotificationManagerCompat.from(context).cancel(notificationId);
+
+            // Optionally, show a toast indicating the dismissal
+            Toast.makeText(context, "Notification Dismissed", Toast.LENGTH_SHORT).show();
+ }
+}
+
+}
+
+
+CloseAppReceiver.java: (class)
+
+package com.example.broadcast;
+import android.content.Context;
+import android.content.Intent;
+
+
+public class CloseAppReceiver {
+
+    public void onReceive(Context context, Intent intent) {
+
+        if ("CLOSE_APP".equals(intent.getAction())) {
+
+            Intent closeIntent = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+            context.sendBroadcast(closeIntent);
+ }
+}
+
+}
+
+
+MyBroadcastReceiver.java: (class)
+
+package com.example.broadcast;
+import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.widget.Toast;
+
+public class MyBroadcastReceiver extends BroadcastReceiver{
+
+    public void onReceive(Context context, Intent intent) {
+        // Check the action of the received intent
+        String action = intent.getAction();
+
+        // Handle different actions with toast messages
+        if (action != null) {
+            switch (action) {
+                case Intent.ACTION_BOOT_COMPLETED:
+                    Toast.makeText(context, "BOOT_COMPLETED", Toast.LENGTH_LONG).show();
+                    break;
+                case Intent.ACTION_AIRPLANE_MODE_CHANGED:
+                    Toast.makeText(context, "AIRPLANE_MODE changed", Toast.LENGTH_LONG).show();
+                    break;
+                case BluetoothAdapter.ACTION_STATE_CHANGED:
+                    int bluetoothState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
+                    switch (bluetoothState) {
+                        case BluetoothAdapter.STATE_ON:
+                            Toast.makeText(context, "Bluetooth turned ON", Toast.LENGTH_LONG).show();
+                            break;
+                        case BluetoothAdapter.STATE_OFF:
+                            Toast.makeText(context, "Bluetooth turned OFF", Toast.LENGTH_LONG).show();
+                            break;
+                    }
+                    break;
+                case Intent.ACTION_BATTERY_CHANGED:
+                    int batteryLevel = intent.getIntExtra("level", 0);
+                    Toast.makeText(context, "Battery Level: " + batteryLevel + "%", Toast.LENGTH_LONG).show();
+                    break;
+            }
+ }
+}
+
+}
+
+
+bradcast1.java: (new activity)
+
+package com.example.broadcast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import android.bluetooth.BluetoothAdapter;
+import android.content.Intent;
+import android.content.IntentFilter;
+
+
+public class broadcast1 extends AppCompatActivity {
+
+    private MyBroadcastReceiver objreceiver;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_broadcast1);
+
+        // Initialize the broadcast receiver
+        objreceiver = new MyBroadcastReceiver();
+
+        // Register the broadcast receiver with the intent filters
+        registerBroadcastReceiver();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // Unregister the broadcast receiver when the activity is destroyed
+        unregisterReceiver(objreceiver);
+    }
+
+    private void registerBroadcastReceiver() {
+        // Intent filter for AIRPLANE_MODE
+        IntentFilter airplaneModeFilter = new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED);
+        registerReceiver(objreceiver, airplaneModeFilter);
+
+        // Intent filter for BOOT_COMPLETED
+        IntentFilter bootCompletedFilter = new IntentFilter(Intent.ACTION_BOOT_COMPLETED);
+        registerReceiver(objreceiver, bootCompletedFilter);
+
+        // Intent filter for Bluetooth state changes
+        IntentFilter bluetoothFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+        registerReceiver(objreceiver, bluetoothFilter);
+
+        // Intent filter for battery level changes
+        IntentFilter batteryFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        registerReceiver(objreceiver, batteryFilter);
+}
+}
+
+

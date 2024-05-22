@@ -1,0 +1,208 @@
+MainActivity.java:
+
+package com.example.contextandpopupmenu;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+
+import android.view.ContextMenu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.PopupMenu;
+import android.widget.TextView;
+import android.widget.Toast;
+
+
+
+public class MainActivity extends AppCompatActivity {
+
+    ImageButton img;
+    Button bt;
+    TextView txt;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        img = findViewById(R.id.imageButton);
+        bt = findViewById(R.id.button);
+        txt = findViewById(R.id.textView);
+
+        registerForContextMenu(txt);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        getMenuInflater().inflate(R.menu.contextmenu, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.first) {
+            Toast.makeText(this, "Hello", Toast.LENGTH_LONG).show();
+            return true;
+        } else if (id == R.id.second) {
+            Toast.makeText(this, "Second hello", Toast.LENGTH_LONG).show();
+            return true;
+        } else {
+            return super.onContextItemSelected(item);
+        }
+    }
+
+
+    public void showPopupMenu(View view) {
+        PopupMenu popupMenu = new PopupMenu(this, view);
+        popupMenu.getMenuInflater().inflate(R.menu.popupmenu, popupMenu.getMenu());
+
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                int id = item.getItemId();
+                if (id == R.id.menu_item_1) {
+                    Toast.makeText(MainActivity.this, "Menu item 1 clicked", Toast.LENGTH_SHORT).show();
+                    return true;
+                } else if (id == R.id.menu_item_2) {
+                    Toast.makeText(MainActivity.this, "Menu item 2 clicked", Toast.LENGTH_SHORT).show();
+                    return true;
+                } else if (id == R.id.menu_item_3) {
+                    Toast.makeText(MainActivity.this, "Menu item 3 clicked", Toast.LENGTH_SHORT).show();
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
+
+        popupMenu.show();
+}
+
+}
+
+
+activity_main.xml:
+
+package com.example.contextandpopupmenu;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+
+import android.view.ContextMenu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.PopupMenu;
+import android.widget.TextView;
+import android.widget.Toast;
+
+
+
+public class MainActivity extends AppCompatActivity {
+
+    ImageButton img;
+    Button bt;
+    TextView txt;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        img = findViewById(R.id.imageButton);
+        bt = findViewById(R.id.button);
+        txt = findViewById(R.id.textView);
+
+        registerForContextMenu(txt);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        getMenuInflater().inflate(R.menu.contextmenu, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.first) {
+            Toast.makeText(this, "Hello", Toast.LENGTH_LONG).show();
+            return true;
+        } else if (id == R.id.second) {
+            Toast.makeText(this, "Second hello", Toast.LENGTH_LONG).show();
+            return true;
+        } else {
+            return super.onContextItemSelected(item);
+        }
+    }
+
+
+    public void showPopupMenu(View view) {
+        PopupMenu popupMenu = new PopupMenu(this, view);
+        popupMenu.getMenuInflater().inflate(R.menu.popupmenu, popupMenu.getMenu());
+
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                int id = item.getItemId();
+                if (id == R.id.menu_item_1) {
+                    Toast.makeText(MainActivity.this, "Menu item 1 clicked", Toast.LENGTH_SHORT).show();
+                    return true;
+                } else if (id == R.id.menu_item_2) {
+                    Toast.makeText(MainActivity.this, "Menu item 2 clicked", Toast.LENGTH_SHORT).show();
+                    return true;
+                } else if (id == R.id.menu_item_3) {
+                    Toast.makeText(MainActivity.this, "Menu item 3 clicked", Toast.LENGTH_SHORT).show();
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
+
+        popupMenu.show();
+}
+
+}
+
+
+Under res folder,right click and create directory "menu"
+right click menu and click "menu resource file" and give following names and create file.
+
+contextmenu.xml:
+
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/first"
+        android:title="First"
+        />
+    <item
+        android:id="@+id/second"
+        android:title="Second"
+    />
+
+</menu>
+
+popupmenu.xml:
+
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_item_1"
+        android:title="Menu Item 1" />
+    <item
+        android:id="@+id/menu_item_2"
+        android:title="Menu Item 2" />
+    <item
+        android:id="@+id/menu_item_3"
+        android:title="Menu Item 3"/>
+
+</menu>
+

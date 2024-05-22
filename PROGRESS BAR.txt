@@ -1,0 +1,74 @@
+PROGRESS BAR
+_____________
+JAVA
+
+package com.example.progressbar;
+
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import java.util.Timer;
+import java.util.TimerTask;
+
+public class MainActivity extends AppCompatActivity {
+    TextView textView;
+    ProgressBar pb;
+    int counter = 0;
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        textView = findViewById(R.id.textView);
+
+        // Get the intent and the data passed from the first activity
+        String text = getIntent().getStringExtra("EXTRA_TEXT");
+        if (text != null) {
+            textView.setText("Received text: " + text);
+        }
+        prog();
+    }
+    public void prog()
+    {pb = findViewById(R.id.progressBar);
+        final Timer t = new Timer();
+        TimerTask tt = new TimerTask(){
+            public void run()
+            {
+                counter++;
+                pb.setProgress(counter);
+                if(counter == 100)
+                {
+                    t.cancel();
+                }
+            }
+        };
+        t.schedule(tt,0,100);
+
+    }
+}
+_______________
+
+XML
+
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="154dp"
+        android:layout_height="66dp" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="93dp"
+        android:layout_height="39dp"
+        android:text="TextView" />
+</RelativeLayout>

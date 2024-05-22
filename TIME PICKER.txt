@@ -1,0 +1,72 @@
+TIME PICKER
+JAVA
+
+package com.example.timepicker;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.TimePicker;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity {
+
+    private TimePicker timePicker;
+    private Button confirmTimeButton;
+    private TextView displayTimeTextView;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // Initialize views
+        timePicker = findViewById(R.id.timePicker);
+        confirmTimeButton = findViewById(R.id.confirmTimeButton);
+        displayTimeTextView = findViewById(R.id.displayTimeTextView);
+
+        // Set click listener for the Confirm button
+        confirmTimeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Get selected time from TimePicker
+                int hourOfDay = timePicker.getCurrentHour();
+                int minute = timePicker.getCurrentMinute();
+
+                // Display the selected time in the TextView
+                String selectedTime = String.format("Selected Time: %02d:%02d", hourOfDay, minute);
+                displayTimeTextView.setText(selectedTime);
+            }
+   });
+}
+}
+
+
+XML
+
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <Button
+        android:id="@+id/confirmTimeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Button" />
+
+    <TimePicker
+        android:id="@+id/timePicker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <TextView
+        android:id="@+id/displayTimeTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+
+</RelativeLayout>
